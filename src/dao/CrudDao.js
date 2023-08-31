@@ -1,11 +1,16 @@
 import { Documents, IPFSAccessController } from "@orbitdb/core";
-import { orbitdb } from "./database/Database.js";
+import { orbitdb } from "../database/Database.js";
 
-async function add(obj, name) {
+async function openDatabase(name) {
     const db = await orbitdb.open(name, {
         AccessController: IPFSAccessController({ write: ["*"] }),
         Database: Documents({ indexBy: "id" }),
     });
+    return await db;
+}
+
+async function add(obj, name) {
+    const db = await openDatabase(name);
     try {
         const entity = await db.put(obj);
         return entity;
@@ -17,10 +22,7 @@ async function add(obj, name) {
 }
 
 async function getOne(id, name) {
-    const db = await orbitdb.open(name, {
-        AccessController: IPFSAccessController({ write: ["*"] }),
-        Database: Documents({ indexBy: "id" }),
-    });
+    const db = await openDatabase(name);
     try {
         const entity = await db.get(id);
         return entity;
@@ -32,10 +34,7 @@ async function getOne(id, name) {
 }
 
 async function get(ids, name) {
-    const db = await orbitdb.open(name, {
-        AccessController: IPFSAccessController({ write: ["*"] }),
-        Database: Documents({ indexBy: "id" }),
-    });
+    const db = await openDatabase(name);
     try {
         const entities =
             ids == null
@@ -57,10 +56,7 @@ async function get(ids, name) {
 }
 
 async function remove(id, name) {
-    const db = await orbitdb.open(name, {
-        AccessController: IPFSAccessController({ write: ["*"] }),
-        Database: Documents({ indexBy: "id" }),
-    });
+    const db = await openDatabase(name);
     try {
         const deleted = await db.del(id);
         return deleted;
@@ -71,4 +67,4 @@ async function remove(id, name) {
     }
 }
 
-export { add, get, remove, getOne };
+export { add, get, remove, getOne, openDatabase };
